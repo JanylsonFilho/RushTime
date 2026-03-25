@@ -68,53 +68,77 @@ class RushHourState:
 
 ### 2. **board_generator.py** - Geração de Tabuleiros
 
-Responsável por criar e gerenciar os estados iniciais.
+Responsável por criar e gerenciar os estados iniciais do puzzle.
 
-#### Funções:
+#### Funções Principais:
+
+**`obter_mapa_aleatorio()`**
+- Seleciona um puzzle aleatoriamente de um banco de 5 puzzles pré-configurados
+- Retorna tupla: `(índice_puzzle, matriz_tabuleiro)`
+- Cada puzzle tem dificuldade variada (Fácil → Expert)
+- Garante que todos os puzzles têm solução
 
 **`get_board_from_bank(dificuldade="exemplo_pdf")`**
 - Retorna um tabuleiro pré-definido do banco de instâncias
-- Atualmente contém apenas um exemplo: "exemplo_pdf"
+- Atualmente contém um exemplo padrão: "exemplo_pdf"
 
-**`generate_random_state_from_final(num_moves, final_state=None, avoid_undo=True)`**
-- Gera estado aleatório aplicando N movimentos a partir do estado final
-- **Garante que o estado é solucionável**
-- `avoid_undo=True`: Evita desfazer movimentos anteriores
+**`generate_random_state_from_final(num_moves, final_state=None)`**
+- Gera estado aleatório **garantidamente a EXATAMENTE N movimentos** do estado final
+- Usa **BFS real** para explorar todos os sucessores a cada profundidade
+- Retorna um estado escolhido aleatoriamente na profundidade N
 - Parâmetros:
-  - `num_moves`: Quantidade de movimentos para gerar o estado (dificuldade)
+  - `num_moves`: Número exato de movimentos desejados
   - `final_state`: Estado final customizado (padrão: exemplo_pdf)
-  - `avoid_undo`: Se True, previne movimentos de undo
+
+**`generate_multiple_random_instances(num_instances, num_moves_range=(10, 50))`**
+- Gera múltiplas instâncias aleatórias para testes de benchmark
+- Retorna lista de tuplas: `(RushHourState, num_movimentos_aplicados)`
+
+#### Banco de Puzzles Disponíveis (5 Puzzles):
+
+1. **Puzzle 1 (Fácil)** - 4 movimentos mínimos
+2. **Puzzle 2 (Médio)** - Requer manobra de bloqueador
+3. **Puzzle 3 (Médio)** - Limpeza de caminho
+4. **Puzzle 4 (Difícil)** - Congestionamento pesado
+5. **Puzzle 5 (Expert)** - Movimento reversível de peças
 
 ---
 
 ### 3. **main.py** - Orquestrador dos Algoritmos
 
-Arquivo principal que executa todos os algoritmos de busca e exibe resultados.
+Arquivo principal que executa todos os algoritmos de busca e gera gráficos comparativos.
 
-#### Configurações:
+#### Funcionalidades:
 
-```python
-USAR_ESTADO_ALEATORIO = True    # True: estado aleatório | False: tabuleiro padrão
-NUM_MOVIMENTOS = 30             # Número de movimentos para gerar estado aleatório
+**Execução de Algoritmos:**
+- Executa os 9 algoritmos em sequência (BFS + A* 4 heurísticas + LMA* 4 heurísticas)
+- Para cada algoritmo, exibe:
+  - Sequência de movimentos
+  - Número de estados expandidos
+  - Tempo de execução (em segundos)
+  - Custo da solução
+
+**Geração Automática de Gráficos:**
+- Função `gerar_graficos_comparativos()` - Cria 2 gráficos comparativos
+- Salva em `images/` com timestamp único (ex: `comparacao_algoritmos_20260325_143022.png`)
+- Exibe tabela resumida de desempenho no console
+
+**Configuração:**
+- Usa puzzles aleatórios do banco de 5 puzzles disponíveis
+- Cada execução seleciona um puzzle diferente aleatoriamente
+
+#### Fluxo de Execução:
+
 ```
-
-#### Função `imprimir_resultado(resultado)`
-Exibe os resultados de cada algoritmo:
-- Sequência de movimentos
-- Número de estados expandidos
-- Tempo de execução (segundos)
-- Custo da solução (número de movimentos)
-
-#### Ordem de Execução:
-1. BFS (Breadth-First Search)
-2. A* com H1 (Bloqueadores)
-3. A* com H2 (Avançada)
-4. LMA* com H1
-5. LMA* com H2
-6. A* com H3 (Combinada)
-7. LMA* com H3
-8. A* com H4 (Dependências)
-9. LMA* com H4
+1. Seleciona puzzle aleatório
+2. Exibe configuração inicial
+3. Executa 9 algoritmos sucessivamente
+4. Coleta métricas de cada algoritmo
+5. Gera gráficos comparativos
+6. Salva imagens em images/
+7. Exibe tabela resumida
+8. Lista todas as imagens salvas
+```
 
 ---
 
@@ -247,12 +271,102 @@ class Node:
 
 ---
 
+## 📊 Gráficos Comparativos Automáticos
+
+A partir da versão atual, o programa **gera automaticamente gráficos comparativos** ao término da execução!
+
+### Funcionalidade de Gráficos:
+
+- **2 Gráficos Comparativos Automáticos:**
+  1. **Estados Expandidos** - Compara quantos nós cada algoritmo explorou
+  2. **Tempo de Execução (milissegundos)** - Compara velocidade com maior precisão
+
+- **Tabela Resumida no Console** - Exibe todos os dados em formato tabular
+
+- **Armazenamento Automático em `images/`:**
+  - Cada gráfico é salvo com **timestamp único**
+  - Exemplo: `comparacao_algoritmos_20260325_143022.png`
+  - Nenhuma imagem anterior é sobrescrita
+  - Ideal para manter histórico de comparações
+
+### Exemplo de Saída de Gráficos:
+
+```
+================================================================================
+TABELA RESUMIDA DE DESEMPENHO
+================================================================================
+Algoritmo                     Estados         Tempo (ms)         Custo
+--------------------------------------------------------------------------------
+BFS                           3510            243.30             22
+A* H1                          2461            179.60             22
+A* H2                          1985            137.20             22
+A* H3                          1484            100.60             22
+A* H4                          1196            103.30             22
+LMA* H1                        2081            179.20             22
+LMA* H2                        1708            163.00             22
+LMA* H3                        1228            119.40             22
+LMA* H4                        1001            104.50             22
+================================================================================
+
+✅ Gráfico salvo como: images/comparacao_algoritmos_20260325_143022.png
+
+📁 Imagens salvas no diretório 'images/':
+   1. comparacao_algoritmos_20260325_143022.png
+   2. comparacao_algoritmos_20260325_143055.png
+   3. comparacao_algoritmos_20260325_143128.png
+```
+
+### Características dos Gráficos:
+
+- 🎨 **Cores distint para cada algoritmo** - Fácil diferenciação visual
+- 📊 **Valores nas barras** - Precisão dos dados exibidos  
+- 📏 **Tempo em milissegundos (ms)** - Diferenças mais visíveis
+- 💾 **Alta resolução (300 DPI)** - Pronto para apresentações
+- 🗂️ **Organizado em pasta** - Fácil localização de comparações
+
+---
+
+## 📁 Estrutura de Diretórios (Atualizada)
+
+```
+RushTime/
+├── main.py                      # Ponto de entrada com gráficos automáticos
+├── models.py                    # Definição do estado do puzzle
+├── board_generator.py           # Gerador de tabuleiros e estados
+├── README.md                    # Documentação do projeto
+├── images/                      # 📁 NOVO: Armazena gráficos comparativos
+│   ├── comparacao_algoritmos_20260325_143022.png
+│   ├── comparacao_algoritmos_20260325_143055.png
+│   └── comparacao_algoritmos_20260325_143128.png
+├── algorithms/                  # Pacote com todos os algoritmos
+│   ├── __init__.py
+│   ├── bfs_solver.py            # Busca em Largura
+│   ├── astar_h1.py              # A* H1 (Bloqueadores)
+│   ├── astar_h2.py              # A* H2 (Avançada)
+│   ├── astar_h3.py              # A* H3 (Combinada)
+│   ├── astar_h4.py              # A* H4 (Dependências)
+│   ├── lma_star_h1.py           # LMA* H1
+│   ├── lma_star_h2.py           # LMA* H2
+│   ├── lma_star_h3.py           # LMA* H3
+│   └── lma_star_h4.py           # LMA* H4
+└── __pycache__/                 # Cache do Python
+```
+
+---
+
 ## ▶️ Como Usar
 
 ### Pré-requisitos
+
+Instale as dependências necessárias:
+
 ```bash
-pip install numpy
+pip install numpy matplotlib
 ```
+
+**Dependências:**
+- `numpy>=2.4.0` - Para manipulação de matrizes e operações numéricas
+- `matplotlib>=3.10.0` - Para geração automática de gráficos comparativos
 
 ### Execução Básica
 
@@ -456,6 +570,13 @@ Desenvolvimento do projeto RushTime
 ---
 
 ## 📝 Changelog
+
+### Versão 1.1 (Atual)
+- ✅ **Gráficos comparativos automáticos** - Gerados ao fim de cada execução
+- ✅ **Armazenamento em `images/`** - Cada gráfico com timestamp único
+- ✅ **Tabela resumida no console** - Exibição formatada de métricas
+- ✅ **Tempo em milissegundos** - Melhor visualização de diferenças entre algoritmos
+- ✅ **Suporte a matplotlib** - Integração completa de visualização
 
 ### Versão 1.0
 - ✅ Implementação de BFS
