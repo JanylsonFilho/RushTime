@@ -1,4 +1,4 @@
-from board_generator import get_board_from_bank, generate_random_state_from_final
+from board_generator import obter_mapa_aleatorio  # Como você já colocou no board_generator
 from models import RushHourState
 from algorithms.bfs_solver import solve as bfs_solve
 from algorithms.astar_h1 import solve as astar_h1_solve
@@ -30,17 +30,14 @@ def imprimir_resultado(resultado):
     print("-" * 30)
 
 def main():
-    # ========== ESCOLHA O MODO ==========
-    USAR_ESTADO_ALEATORIO = True
-    NUM_MOVIMENTOS = 30 # Número de movimentos para gerar o estado inicial aleatório
+    # 1. Obtém o mapa aleatório da nova estrutura
+    index, matriz_inicial = obter_mapa_aleatorio()
     
-    if USAR_ESTADO_ALEATORIO:
-        print(f"[Gerando estado aleatório com {NUM_MOVIMENTOS} movimentos]")
-        estado_comum = generate_random_state_from_final(num_moves=NUM_MOVIMENTOS)
-    else:
-        print("[Usando tabuleiro padrão do banco]")
-        layout = get_board_from_bank(dificuldade="exemplo_pdf") 
-        estado_comum = RushHourState(layout)
+    print(f"[ Usando Puzzle Sorteado: {index + 1} ]")
+    
+    # Passamos matriz_inicial DIRETAMENTE para a classe, sem converter para string
+    # Isso fará o numpy criar uma matriz 2D (6x6) corretamente.
+    estado_comum = RushHourState(matriz_inicial)
     
     print("\nConfiguração Inicial:")
     print(estado_comum)
@@ -60,11 +57,11 @@ def main():
     imprimir_resultado(res_h2)
 
     print("\n[ Executando LMA* (Heurística 1 - Bloqueadores) ]")
-    res_lma_h1 = lma_star_h1_solve(estado_comum)  # Usa padrão melhorado: max_memory=8000
+    res_lma_h1 = lma_star_h1_solve(estado_comum)
     imprimir_resultado(res_lma_h1)
 
     print("\n[ Executando LMA* (Heurística 2 - Distância) ]")
-    res_lma_h2 = lma_star_h2_solve(estado_comum)  # Usa padrão: max_memory=5000
+    res_lma_h2 = lma_star_h2_solve(estado_comum)
     imprimir_resultado(res_lma_h2)
 
     print("\n[ Executando A* (Heurística 3: Combinada) ]")
@@ -72,7 +69,7 @@ def main():
     imprimir_resultado(res_h3)
 
     print("\n[ Executando LMA* (Heurística 3 - Combinada) ]")
-    res_lma_h3 = lma_star_h3_solve(estado_comum)  # Usa padrão: max_memory=5000
+    res_lma_h3 = lma_star_h3_solve(estado_comum)
     imprimir_resultado(res_lma_h3)
 
     print("\n[ Executando A* (Heurística 4: Dependências) ]")
@@ -80,7 +77,7 @@ def main():
     imprimir_resultado(res_h4)
 
     print("\n[ Executando LMA* (Heurística 4 - Dependências) ]")
-    res_lma_h4 = lma_star_h4_solve(estado_comum)  # Usa padrão: max_memory=5000
+    res_lma_h4 = lma_star_h4_solve(estado_comum)
     imprimir_resultado(res_lma_h4)
 
 if __name__ == "__main__":
