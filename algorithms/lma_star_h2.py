@@ -3,10 +3,13 @@ import numpy as np
 
 def heuristic_h2(state):
     """Calcula a distância restante do carro X até a saída."""
+
+    # quantos passos o X precisa dar , se o caminho estivesse livre ? 
     _, colunas = np.where(state.matrix == 'X')
     if len(colunas) == 0: return 0
 
     col_last_x = np.max(colunas)
+    # utiliza 5 pois as colunas sao enumerada de 0 a 5 , então 5 é a ultima coluna - distancia = saida - posiçao atual
     distancia = 5 - col_last_x
     return distancia
 
@@ -84,11 +87,23 @@ def solve(initial_state, max_memory=5000):
             
             parent = worst_leaf.parent
             if parent:
-                parent.f = max(parent.f, worst_leaf.f)
-                
+                # Remove o filho ruim da lista de filhos do pai
                 if worst_leaf in parent.children:
                     parent.children.remove(worst_leaf)
+
+                # A CORREÇÃO DA LÓGICA ESTÁ AQUI:
+                if parent.children:
+                    # Se o pai ainda tem outros filhos na memória, 
+                    # o custo dele é o custo do MELHOR filho restante.
+                    parent.f = min(child.f for child in parent.children)
+                else:
+                    # Se este era o último/único filho do pai, o pai
+                    # herda esse custo ruim para não esquecer quão ruim era
+                    # (garante que ele não seja re-expandido imediatamente)
+                    parent.f = max(parent.f, worst_leaf.f)
                 
+                # Se o pai ficou sem filhos na memória e não está na fila,
+                # ele volta para a fila para poder ser re-expandido no futuro
                 if not parent.children and not parent.is_in_open:
                     open_list.append(parent)
                     parent.is_in_open = True

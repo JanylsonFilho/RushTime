@@ -28,22 +28,20 @@ class Node:
 def solve(initial_state, max_memory=5000):
     """
     LMA* com limite de memória melhorado.
-    
-    Aumentamos max_memory de 2000 para 8000 porque:
-    - O limite anterior estava muito agressivo
-    - Removia nós promissores prematuramente
-    - Causava soluções subótimas
     """
     start_time = time.time()
     root = Node(initial_state, None, None, 0, heuristic_h1(initial_state))
 
     open_list = [root]
+    # guardamos o no completo e nao so o custo como no A*
     visited = {initial_state.to_hash(): root}
     expanded_nodes = 0
 
     while open_list:
+        # ordena pelo menor f e maior g (desempate)
         open_list.sort(key=lambda n: (n.f, -n.g))
         best_node = open_list.pop(0)
+        #marca como removido da open_list
         best_node.is_in_open = False
         expanded_nodes += 1
 
@@ -55,6 +53,7 @@ def solve(initial_state, max_memory=5000):
                 curr = curr.parent
             return {
                 "name": f"LMA* com Heurística de Bloqueadores (H1) - Memória: {max_memory}",
+                #inverte o caminho porque foi construido de tras pra frente
                 "solution_path": path[::-1],
                 "nodes_expanded": expanded_nodes,
                 "time": time.time() - start_time,
@@ -68,41 +67,60 @@ def solve(initial_state, max_memory=5000):
 
             if state_hash in visited:
                 existing_node = visited[state_hash]
+                # se ele encontrar um caminho melhor para um estado ja visitado, atualiza o no existente
                 if g < existing_node.g:
-                    # CORRIGIDO: Atualiza e reinsere na open_list
+                    
                     existing_node.g = g
                     existing_node.parent = best_node
                     existing_node.move_desc = move_desc
+                    # f(n) = g(n)+ h(n)
                     existing_node.f = g + existing_node.h
                     
                     # Reinsere na open_list se não estiver lá
                     if not existing_node.is_in_open:
                         open_list.append(existing_node)
                         existing_node.is_in_open = True
+                #pula criação de novo no
                 continue
 
             h = heuristic_h1(next_state)
             child_node = Node(next_state, best_node, move_desc, g, h)
+            # faz a conexao entre pai e filho
             best_node.children.append(child_node)
             visited[state_hash] = child_node
             open_list.append(child_node)
 
-        # MELHORADO: Política de descarte mais inteligente
+        # passou do limite de memoria estabelecido
         if len(visited) > max_memory:
+            # inicio da lista - melhores nos (menor f ) e o final da lista - piores nos (maior f)
             open_list.sort(key=lambda n: (n.f, -n.g))
-            # Remove os nós com pior f-value (menos promissores)
+            # Remove os nós com pior f-value (menos promissores) . pop(-1) pega o ultimo elemento da lista
             worst_leaf = open_list.pop(-1)
             worst_leaf.is_in_open = False
 
+            #remove da memoria o estado do pior no para liberar espaço
             del visited[worst_leaf.state.to_hash()]
 
+            # backup do no pai do pior no, se ele existir, para atualizar o f-value e possivelmente reabri-lo
             parent = worst_leaf.parent
             if parent:
-                parent.f = max(parent.f, worst_leaf.f)
-
+                # Remove o filho ruim da lista de filhos do pai
                 if worst_leaf in parent.children:
                     parent.children.remove(worst_leaf)
 
+                # A CORREÇÃO DA LÓGICA ESTÁ AQUI:
+                if parent.children:
+                    # Se o pai ainda tem outros filhos na memória, 
+                    # o custo dele é o custo do MELHOR filho restante.
+                    parent.f = min(child.f for child in parent.children)
+                else:
+                    # Se este era o último/único filho do pai, o pai
+                    # herda esse custo ruim para não esquecer quão ruim era
+                    # (garante que ele não seja re-expandido imediatamente)
+                    parent.f = max(parent.f, worst_leaf.f)
+                
+                # Se o pai ficou sem filhos na memória e não está na fila,
+                # ele volta para a fila para poder ser re-expandido no futuro
                 if not parent.children and not parent.is_in_open:
                     open_list.append(parent)
                     parent.is_in_open = True

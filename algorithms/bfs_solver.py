@@ -28,6 +28,7 @@ def solve(initial_state):
             
             if state_hash not in visited:
                 visited.add(state_hash)
+                # cria um novo caminho (path + move_desc)
                 queue.append((next_state, path + [move_desc]))
 
         if expanded_nodes % 100 == 0:

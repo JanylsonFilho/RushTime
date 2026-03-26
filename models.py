@@ -26,11 +26,11 @@ class RushHourState:
                 col_start = pos[0][1]
                 col_end = pos[-1][1]
                 
-                # Esquerda (Apenas 1 casa, como no seu código original)
+                # Esquerda (Apenas 1 casa)
                 if col_start > 0 and self.matrix[row, col_start - 1] == '.':
                     successors.append((self._move(vid, pos, (0, -1)), f"mover {vid} para esquerda"))
                 
-                # Direita (Apenas 1 casa, como no seu código original)
+                # Direita (Apenas 1 casa)
                 if col_end < 5 and self.matrix[row, col_end + 1] == '.':
                     successors.append((self._move(vid, pos, (0, 1)), f"mover {vid} para direita"))
             else:
@@ -38,11 +38,11 @@ class RushHourState:
                 row_start = pos[0][0]
                 row_end = pos[-1][0]
                 
-                # Cima (Apenas 1 casa, como no seu código original)
+                # Cima (Apenas 1 casa)
                 if row_start > 0 and self.matrix[row_start - 1, col] == '.':
                     successors.append((self._move(vid, pos, (-1, 0)), f"mover {vid} para cima"))
                 
-                # Baixo (Apenas 1 casa, como no seu código original)
+                # Baixo (Apenas 1 casa)
                 if row_end < 5 and self.matrix[row_end + 1, col] == '.':
                     successors.append((self._move(vid, pos, (1, 0)), f"mover {vid} para baixo"))
                     
@@ -53,7 +53,7 @@ class RushHourState:
         
         for r, c in pos: 
             new_matrix[r, c] = '.'
-            
+        # Essa linha pega cada celula do veiculo e reposiciona ela no tabuleiro somando o delta , que é o deslocamento
         for r, c in pos: 
             new_matrix[r + delta[0], c + delta[1]] = vid
             

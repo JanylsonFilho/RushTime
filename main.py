@@ -1,4 +1,4 @@
-from board_generator import obter_mapa_aleatorio  # Como você já colocou no board_generator
+from board_generator import obter_mapa_aleatorio  
 from models import RushHourState
 from algorithms.bfs_solver import solve as bfs_solve
 from algorithms.astar_h1 import solve as astar_h1_solve
