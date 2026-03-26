@@ -4,6 +4,9 @@ import numpy as np
 
 def heuristic_h4(state):
     """Combinação de Bloqueadores (H1) + Distância (H2) + Dependências."""
+
+    # Quantos carros estao na frente + quanto falta andar + se esses veiculos estao presos por outros veiculos
+    # cada bloqueador preso exige pelo menos 1 mov extra , ou seja , não superestima o custo
     matrix = state.matrix
     linhas, colunas = np.where(matrix == 'X')
     if len(linhas) == 0: return 0
@@ -22,6 +25,7 @@ def heuristic_h4(state):
     
     # 3. Dependências (Blocker's Blockers)
     for blocker in blockers:
+        # encontra as coordenadas dos veiculos que estao bloqueando X 
         coords = np.argwhere(matrix == blocker)
         if len(coords) == 0: continue
         
@@ -33,7 +37,7 @@ def heuristic_h4(state):
         can_move_up = (row_start > 0) and (matrix[row_start - 1, col] == '.')
         can_move_down = (row_end < 5) and (matrix[row_end + 1, col] == '.')
         
-        # Se ele não pode ir nem para cima nem para baixo, ele depende de terceiros
+        # Se ele não pode ir nem para cima nem para baixo, isso significa que o carro bloqueador esta preso , dependendo de terceiros 
         if not can_move_up and not can_move_down:
             h_val += 1
             

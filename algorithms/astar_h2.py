@@ -3,7 +3,7 @@ import time
 import numpy as np
 
 def heuristic_h2(state):
-    """Calcula a distância restante do carro X até a saída[cite: 75]."""
+    """Calcula a distância restante do carro X até a saída"""
     _, colunas = np.where(state.matrix == 'X')
     if len(colunas) == 0: return 0
 

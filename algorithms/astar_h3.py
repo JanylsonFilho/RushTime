@@ -3,7 +3,9 @@ import time
 import numpy as np
 
 def heuristic_h3(state):
-    """Combinação de Bloqueadores (H1) + Distância (H2)[cite: 75, 76, 77]."""
+    """Combinação de Bloqueadores (H1) + Distância (H2)."""
+
+    # porque é admissivel ? remover bloqueadores é diferente de mover X , entao o custo minimo >= h1 + h2 
     linhas, colunas = np.where(state.matrix == 'X')
     if len(linhas) == 0: return 0
     

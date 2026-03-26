@@ -115,13 +115,17 @@ Arquivo principal que executa todos os algoritmos de busca e gera gráficos comp
 - Para cada algoritmo, exibe:
   - Sequência de movimentos
   - Número de estados expandidos
-  - Tempo de execução (em segundos)
+  - Tempo de execução (em **milissegundos** para melhor visualização)
   - Custo da solução
 
 **Geração Automática de Gráficos:**
-- Função `gerar_graficos_comparativos()` - Cria 2 gráficos comparativos
-- Salva em `images/` com timestamp único (ex: `comparacao_algoritmos_20260325_143022.png`)
-- Exibe tabela resumida de desempenho no console
+- Função `gerar_graficos_comparativos()` - Cria 3 gráficos comparativos lado a lado:
+  1. **Gráfico de Barras 1:** Estados Expandidos (comparação absoluta)
+  2. **Gráfico de Barras 2:** Tempo de Execução em milissegundos
+  3. **Gráfico de Pizza:** Economia de expansões (% vs BFS)
+- Salva em `images/` com timestamp único (ex: `comparacao_algoritmos_20260325_153824.png`)
+- Exibe tabela resumida com economia percentual no console
+- Lista todas as imagens salvas no histórico
 
 **Configuração:**
 - Usa puzzles aleatórios do banco de 5 puzzles disponíveis
@@ -130,15 +134,24 @@ Arquivo principal que executa todos os algoritmos de busca e gera gráficos comp
 #### Fluxo de Execução:
 
 ```
-1. Seleciona puzzle aleatório
+1. Seleciona puzzle aleatório (5 puzzles disponíveis)
 2. Exibe configuração inicial
 3. Executa 9 algoritmos sucessivamente
-4. Coleta métricas de cada algoritmo
-5. Gera gráficos comparativos
-6. Salva imagens em images/
-7. Exibe tabela resumida
-8. Lista todas as imagens salvas
+4. Coleta métricas de cada algoritmo (estados, tempo em ms, custo)
+5. Calcula economia percentual vs BFS
+6. Gera 3 gráficos comparativos
+7. Salva imagens em images/ com timestamp
+8. Exibe tabela resumida com economia %
+9. Lista todas as imagens salvas
 ```
+
+#### Observações Importantes:
+
+- **Tempo em Milissegundos:** Facilita visualização de diferenças (ex: 3.57ms vs 5.61ms)
+- **Economia %:** Mostra quanto cada algoritmo economizou em expansões comparado ao BFS
+  - BFS = Referência (0%)
+  - Valores positivos = Melhor que BFS
+- **Gráfico de Pizza:** Concentra a comparação relativa em uma visualização compacta
 
 ---
 
@@ -277,15 +290,16 @@ A partir da versão atual, o programa **gera automaticamente gráficos comparati
 
 ### Funcionalidade de Gráficos:
 
-- **2 Gráficos Comparativos Automáticos:**
-  1. **Estados Expandidos** - Compara quantos nós cada algoritmo explorou
-  2. **Tempo de Execução (milissegundos)** - Compara velocidade com maior precisão
+- **3 Gráficos Comparativos Automáticos:**
+  1. **Estados Expandidos** - Compara quantos nós cada algoritmo explorou (barras)
+  2. **Tempo de Execução (milissegundos)** - Compara velocidade com maior precisão (barras em ms)
+  3. **Economia de Expansões** - Mostra redução percentual comparada ao BFS (gráfico de pizza)
 
-- **Tabela Resumida no Console** - Exibe todos os dados em formato tabular
+- **Tabela Resumida no Console** - Exibe todos os dados em formato tabular com economia percentual
 
 - **Armazenamento Automático em `images/`:**
-  - Cada gráfico é salvo com **timestamp único**
-  - Exemplo: `comparacao_algoritmos_20260325_143022.png`
+  - Cada conjunto de gráficos é salvo com **timestamp único**
+  - Exemplo: `comparacao_algoritmos_20260325_153824.png`
   - Nenhuma imagem anterior é sobrescrita
   - Ideal para manter histórico de comparações
 
@@ -295,34 +309,37 @@ A partir da versão atual, o programa **gera automaticamente gráficos comparati
 ================================================================================
 TABELA RESUMIDA DE DESEMPENHO
 ================================================================================
-Algoritmo                     Estados         Tempo (ms)         Custo
+Algoritmo                     Estados         Tempo (ms)         Economia vs BFS    Custo
 --------------------------------------------------------------------------------
-BFS                           3510            243.30             22
-A* H1                          2461            179.60             22
-A* H2                          1985            137.20             22
-A* H3                          1484            100.60             22
-A* H4                          1196            103.30             22
-LMA* H1                        2081            179.20             22
-LMA* H2                        1708            163.00             22
-LMA* H3                        1228            119.40             22
-LMA* H4                        1001            104.50             22
+BFS                           76              3.57               Referência         10
+A* H1                          71              3.62               6.6%               10
+A* H2                          66              3.26               13.2%              10
+A* H3                          57              2.91               25.0%              10
+A* H4                          49              4.52               35.5%              10
+LMA* H1                        68              5.61               10.5%              10
+LMA* H2                        60              3.88               21.1%              10
+LMA* H3                        47              2.54               38.2%              10
+LMA* H4                        40              3.96               47.4%              10
 ================================================================================
 
-✅ Gráfico salvo como: images/comparacao_algoritmos_20260325_143022.png
+✅ Gráfico salvo como: images/comparacao_algoritmos_20260325_153824.png
 
 📁 Imagens salvas no diretório 'images/':
    1. comparacao_algoritmos_20260325_143022.png
-   2. comparacao_algoritmos_20260325_143055.png
-   3. comparacao_algoritmos_20260325_143128.png
+   2. comparacao_algoritmos_20260325_153824.png
+   3. comparacao_algoritmos_20260325_160115.png
 ```
 
 ### Características dos Gráficos:
 
-- 🎨 **Cores distint para cada algoritmo** - Fácil diferenciação visual
-- 📊 **Valores nas barras** - Precisão dos dados exibidos  
-- 📏 **Tempo em milissegundos (ms)** - Diferenças mais visíveis
-- 💾 **Alta resolução (300 DPI)** - Pronto para apresentações
-- 🗂️ **Organizado em pasta** - Fácil localização de comparações
+- 🎨 **3 gráficos diferentes:**
+  - **Gráfico 1 & 2:** Barras com cores distintas para cada algoritmo (fácil diferenciação visual)
+  - **Gráfico 3:** Pizza mostrando economia percentual de cada algoritmo vs BFS
+  
+- 📊 **Valores visíveis nos gráficos** - Precisão dos dados exibidos direto nas barras/fatias
+- 📏 **Tempo em milissegundos (ms)** - Diferenças muito mais visíveis (ex: 3.57ms vs 5.61ms)
+- 💾 **Alta resolução (300 DPI)** - Pronto para apresentações profissionais
+- 🗂️ **Organizado em pasta** - Fácil localização de comparações históricas
 
 ---
 
@@ -443,6 +460,13 @@ Cada algoritmo retorna um dicionário com:
     "depth": int              # Profundidade da solução
 }
 ```
+
+### Métricas Calculadas Automaticamente:
+
+**Na geração de gráficos:**
+- **Economia Percentual:** `(bfs_estados - algoritmo_estados) / bfs_estados * 100`
+- **Tempo em Milissegundos:** `time * 1000`
+- **Taxa de Eficiência:** `tempo_ms / numero_estados`
 
 ---
 
@@ -571,16 +595,22 @@ Desenvolvimento do projeto RushTime
 
 ## 📝 Changelog
 
-### Versão 1.1 (Atual)
-- ✅ **Gráficos comparativos automáticos** - Gerados ao fim de cada execução
-- ✅ **Armazenamento em `images/`** - Cada gráfico com timestamp único
-- ✅ **Tabela resumida no console** - Exibição formatada de métricas
-- ✅ **Tempo em milissegundos** - Melhor visualização de diferenças entre algoritmos
-- ✅ **Suporte a matplotlib** - Integração completa de visualização
+### Versão 1.2 (Atual)
+- ✅ **Gráfico de pizza** - Mostra economia percentual vs BFS
+- ✅ **3 gráficos lado a lado** - Estados, Tempo e Economia em uma única imagem
+- ✅ **Coluna de economia %** - Exibe economia vs BFS na tabela resumida
+- ✅ **Tempo em milissegundos** - Tanto no console quanto nos gráficos para melhor visualização
+
+### Versão 1.1
+- ✅ Gráficos comparativos automáticos - Gerados ao fim de cada execução
+- ✅ Armazenamento em `images/` - Cada gráfico com timestamp único
+- ✅ Tabela resumida no console - Exibição formatada de métricas
+- ✅ Tempo em milissegundos - Melhor visualização de diferenças entre algoritmos
+- ✅ Suporte a matplotlib - Integração completa de visualização
 
 ### Versão 1.0
 - ✅ Implementação de BFS
 - ✅ Implementação de A* com 4 heurísticas
 - ✅ Implementação de LMA* com 4 heurísticas
-- ✅ Gerador de estados aleatórios
+- ✅ Gerador de estados aleatórios com banco de 5 puzzles
 - ✅ Sistema de avaliação comparativo
